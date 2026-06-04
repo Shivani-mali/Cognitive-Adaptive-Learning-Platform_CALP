@@ -1,192 +1,378 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <div style={{ 
       position: 'relative',
+      width: '100%',
       minHeight: '100vh',
-      width: '100vw',
-      marginLeft: 'calc(-50vw + 50%)', /* Reset any parent constraints */
-      backgroundColor: '#f8fafc',
-      backgroundImage: 'radial-gradient(circle at 50% -20%, #e0e7ff 0%, #f8fafc 50%)',
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "'Inter', sans-serif"
+      backgroundColor: '#000000',
+      overflowX: 'hidden',
+      overflowY: 'auto',
+      fontFamily: "'Inter', sans-serif",
+      color: '#ffffff'
     }}>
-      {/* Background Decorative Elements */}
+      {/* Fixed Background Video */}
       <div style={{
         position: 'absolute',
-        top: '10%',
-        left: '15%',
-        width: '300px',
-        height: '300px',
-        background: 'radial-gradient(circle, rgba(167,139,250,0.15) 0%, rgba(255,255,255,0) 70%)',
-        borderRadius: '50%',
-        filter: 'blur(40px)',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
         zIndex: 0,
-        animation: 'float 6s ease-in-out infinite'
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '10%',
-        right: '15%',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(96,165,250,0.15) 0%, rgba(255,255,255,0) 70%)',
-        borderRadius: '50%',
-        filter: 'blur(60px)',
-        zIndex: 0,
-        animation: 'float 8s ease-in-out infinite reverse'
-      }} />
-
-      {/* Main Content */}
-      <div className="animate-in" style={{ 
-        position: 'relative',
-        zIndex: 10,
-        textAlign: 'center',
-        maxWidth: '800px',
-        padding: '2rem',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '3rem'
+        overflow: 'hidden'
       }}>
-        {/* Top Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem' }}>
-          <h1 style={{ 
-            fontSize: '5rem', 
-            margin: 0, 
-            fontWeight: '800', 
-            background: 'linear-gradient(135deg, #0f172a 0%, #3b82f6 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1
-          }}>
-            CALP
-          </h1>
-          <h2 style={{ 
-            margin: 0, 
-            fontSize: '1.6rem',
-            color: '#334155', 
-            fontWeight: '600',
-            letterSpacing: '-0.01em'
-          }}>
+        {isMobile && false ? (
+          <img 
+            src="/calpLogo.png" 
+            alt="Background" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+          />
+        ) : (
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          >
+            <source src="/WhatsApp Video 2026-06-03 at 9.41.40 PM.mp4" type="video/mp4" />
+          </video>
+        )}
+        
+        {/* Subtle dark overlay */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.25)',
+          zIndex: 1
+        }}></div>
+
+        {/* Sunlight Glow Effect */}
+        <div style={{
+          position: 'absolute',
+          top: '-10%',
+          right: '-10%',
+          width: '50vw',
+          height: '50vw',
+          background: 'radial-gradient(circle, rgba(255, 230, 150, 0.12) 0%, transparent 60%)',
+          zIndex: 1,
+          pointerEvents: 'none'
+        }}></div>
+      </div>
+
+      {/* Cinematic Floating Light Particles */}
+      <div className="particles-container" style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', overflow: 'hidden' }}>
+         <div className="light-particle lp1"></div>
+         <div className="light-particle lp2"></div>
+         <div className="light-particle lp3"></div>
+         <div className="light-particle lp4"></div>
+         <div className="light-particle lp5"></div>
+      </div>
+
+      {/* Hero Content Area */}
+      <div className="hero-section" style={{ position: 'relative', zIndex: 10 }}>
+        
+        <div className="glass-panel">
+          <h1 className="hero-title">CALP</h1>
+          
+          <h2 className="hero-subtitle">
             Cognitive Adaptive Learning Platform
           </h2>
-          <p style={{ 
-            fontSize: '1.2rem', 
-            color: '#64748b', 
-            fontWeight: '400',
-            marginTop: '0.5rem',
-            maxWidth: '500px'
-          }}>
-            Learn in the way your mind understands.
-          </p>
-        </div>
 
-        {/* Center Section: Logo with glow */}
-        <div style={{
-          position: 'relative',
-          width: '180px',
-          height: '180px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          {/* Glowing Aura */}
-          <div style={{
-            position: 'absolute',
-            inset: '-20px',
-            background: 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(167,139,250,0.3) 100%)',
-            borderRadius: '50%',
-            filter: 'blur(30px)',
-            animation: 'pulseGlow 3s infinite alternate'
-          }} />
+          <div className="divider"></div>
+
+          <h3 className="hero-tagline">
+            "Adapting Learning to the Way You Think"
+          </h3>
           
-          {/* Glassmorphism Logo Panel */}
-          <div style={{
-            position: 'relative',
-            width: '140px',
-            height: '140px',
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.8)',
-            borderRadius: '35px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255,255,255,0.5) inset',
-            transform: 'rotate(-3deg)',
-            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'rotate(0deg) scale(1.08)';
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'rotate(-3deg) scale(1)';
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-          }}
-          >
-            <img src="/calpLogo.png" alt="CALP Logo" style={{ width: '75%', height: '75%', objectFit: 'contain' }} />
+          <p className="hero-desc">
+            Personalized learning experiences designed to support focus, memory, understanding, and cognitive growth.
+          </p>
+
+          {/* Balanced 2x2 Feature Grid */}
+          <div className="features-grid">
+            <span className="feature-item">
+              <span className="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </span> 
+              Adaptive Learning
+            </span>
+            <span className="feature-item">
+              <span className="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </span> 
+              Personalized Guidance
+            </span>
+            <span className="feature-item">
+              <span className="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                  <polyline points="16 7 22 7 22 13"/>
+                </svg>
+              </span> 
+              Progress Tracking
+            </span>
+            <span className="feature-item">
+              <span className="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </span> 
+              Focus-Based Learning
+            </span>
           </div>
+
+          <button 
+            className="start-btn primary-btn"
+            onClick={() => navigate('/login')} 
+          >
+            Begin Your Learning Journey <span className="arrow">→</span>
+          </button>
         </div>
 
-        {/* CTA Section */}
-        <button 
-          onClick={() => navigate('/login')} 
-          style={{ 
-            marginTop: '1.5rem',
-            padding: '1.2rem 3rem',
-            fontSize: '1.25rem',
-            fontWeight: '600',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            color: '#ffffff',
-            borderRadius: '50px',
-            border: '1px solid rgba(255,255,255,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            boxShadow: '0 10px 30px -5px rgba(15, 23, 42, 0.3)',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            fontFamily: "'Inter', sans-serif"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 20px 40px -5px rgba(15, 23, 42, 0.4)';
-            e.currentTarget.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 10px 30px -5px rgba(15, 23, 42, 0.3)';
-            e.currentTarget.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
-          }}
-        >
-          Start Learning Now
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </button>
       </div>
 
       <style>{`
-        @keyframes pulseGlow {
-          0% { transform: scale(0.9); opacity: 0.5; }
-          100% { transform: scale(1.1); opacity: 0.8; }
+        /* Animations & Layout */
+        .hero-section {
+          min-height: 100vh;
+          width: 100vw;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+          box-sizing: border-box;
+          animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        @keyframes float {
-          0% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-          100% { transform: translateY(0px) rotate(0deg); }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Premium Glass Panel */
+        .glass-panel {
+          background: rgba(0, 0, 0, 0.3);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 32px;
+          padding: 4rem 3rem;
+          max-width: 800px;
+          width: 100%;
+          text-align: center;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        /* Hero Typography */
+        .hero-title {
+          margin: 0 0 0.5rem 0;
+          font-size: 4.5rem;
+          font-weight: 800;
+          color: #ffffff;
+          letter-spacing: 0.05em;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .hero-subtitle {
+          margin: 0 0 1.5rem 0;
+          font-size: 1.4rem;
+          font-weight: 400;
+          color: rgba(255,255,255,0.9);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+
+        .divider {
+          width: 60px;
+          height: 3px;
+          background: linear-gradient(90deg, #4F46E5, #8B5CF6);
+          border-radius: 10px;
+          margin: 0 auto 2rem;
+        }
+
+        .hero-tagline {
+          margin: 0 0 1rem 0;
+          font-size: 1.3rem;
+          font-weight: 500;
+          color: #ffffff;
+          letter-spacing: 0.02em;
+          font-style: italic;
+        }
+
+        .hero-desc {
+          margin: 0 0 2.5rem 0;
+          font-size: 1.1rem;
+          font-weight: 300;
+          color: rgba(255, 255, 255, 0.75);
+          max-width: 600px;
+          line-height: 1.6;
+        }
+
+        /* Perfectly Balanced 2x2 Feature Grid */
+        .features-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.2rem;
+          margin-bottom: 3rem;
+          width: 100%;
+          max-width: 650px;
+        }
+
+        .feature-item {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 12px;
+          font-size: 1rem;
+          color: #ffffff;
+          font-weight: 500;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 1rem 1.2rem;
+          border-radius: 16px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #8B5CF6;
+        }
+
+        /* Buttons */
+        .start-btn {
+          padding: 1.2rem 3.5rem;
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: #ffffff;
+          border: none;
+          border-radius: 50px;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .primary-btn {
+          background: linear-gradient(135deg, #4F46E5 0%, #8B5CF6 100%);
+          box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.4);
+        }
+        .primary-btn:hover {
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 15px 35px -5px rgba(79, 70, 229, 0.6), 0 0 25px rgba(139, 92, 246, 0.4);
+        }
+        .arrow {
+          transition: transform 0.3s ease;
+        }
+        .primary-btn:hover .arrow {
+          transform: translateX(5px);
+        }
+
+        /* Cinematic Light Particles */
+        .light-particle {
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.6);
+          filter: blur(4px);
+          animation: floatLight 15s infinite linear;
+          opacity: 0;
+        }
+        .lp1 { width: 6px; height: 6px; top: 80%; left: 10%; animation-duration: 20s; animation-delay: 0s; }
+        .lp2 { width: 4px; height: 4px; top: 90%; left: 40%; animation-duration: 18s; animation-delay: 4s; }
+        .lp3 { width: 8px; height: 8px; top: 70%; right: 20%; animation-duration: 25s; animation-delay: 2s; }
+        .lp4 { width: 5px; height: 5px; top: 85%; right: 40%; animation-duration: 22s; animation-delay: 7s; }
+        .lp5 { width: 7px; height: 7px; top: 75%; left: 70%; animation-duration: 19s; animation-delay: 1s; }
+
+        @keyframes floatLight {
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          20% { opacity: 0.8; }
+          80% { opacity: 0.8; }
+          100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+          .hero-section {
+            padding: 1rem;
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+          }
+          .glass-panel {
+            padding: 2rem 1.2rem;
+            border-radius: 24px;
+          }
+          .hero-title {
+            font-size: 2.8rem;
+          }
+          .hero-subtitle {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+          }
+          .divider {
+            margin-bottom: 1.5rem;
+          }
+          .hero-tagline {
+            font-size: 1.05rem;
+          }
+          .hero-desc {
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+          }
+          .features-grid {
+            grid-template-columns: 1fr; /* Stack vertically on mobile */
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+          }
+          .feature-item {
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+            justify-content: flex-start;
+          }
+          .start-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 1rem;
+            font-size: 1.05rem;
+          }
         }
       `}</style>
     </div>
@@ -194,3 +380,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+

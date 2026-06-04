@@ -7,6 +7,8 @@ import Preferences from './pages/Preferences';
 import StudentHome from './pages/StudentHome';
 import Learning from './pages/Learning';
 import ParentDashboard from './pages/ParentDashboard';
+import History from './pages/History';
+import Progress from './pages/Progress';
 import './App.css';
 import './index.css';
 
@@ -22,6 +24,8 @@ function App() {
           <Route path="/student-home" element={<StudentHome />} />
           <Route path="/learning" element={<Learning />} />
           <Route path="/parent-dashboard" element={<ParentDashboard />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/progress" element={<Progress />} />
         </Routes>
       </div>
     </Router>

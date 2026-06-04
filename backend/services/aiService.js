@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { OpenAI } = require('openai');
 const axios = require('axios');
 
 const getAiResponse = async (question, context, mode) => {
@@ -23,55 +24,111 @@ const getAiResponse = async (question, context, mode) => {
       promptInstructions = "Explain clearly and provide an example. Set imageKeyword and videoKeyword to null.";
     }
 
+    // Add specific instruction for Learning Path generation
+    promptInstructions += "\nCRITICAL: If the user is asking to learn a completely new topic (e.g., 'Learn Python', 'Teach me HTML'), you MUST start your explanation with a 'Learning Path' syllabus. Provide 4-5 core subtopics, using a '✓' for the first topic (which you will teach now) and '○' for the remaining topics. Then, immediately begin teaching the first topic below the path.";
+
     const prompt = `
     You are an adaptive AI teacher.
     INSTRUCTIONS: ${promptInstructions}
     
+    CRITICAL BEHAVIOR FOR GREETINGS:
+    - If the user is just saying "hello", greeting you, or making small talk, respond warmly in the "explanation" field and set "example", "imageKeyword", "videoKeyword", "quiz", "options", and "correctAnswer" to null. Do not try to teach a topic if they just say hi.
+    - If the user asks a learning question or wants to learn a topic, provide the full structured response filling out all fields appropriately.
+
     Question: ${question}
     Context: ${context || 'None'}
     
     Return a JSON object exactly with the following format (no markdown code blocks, just raw JSON):
     {
-      "explanation": "your adaptive explanation here",
-      "example": "an example demonstrating the concept",
-      "imageKeyword": "a 1-2 word specific keyword to search for an educational illustration",
-      "videoKeyword": "a short keyword phrase to search for an educational video on youtube",
-      "quiz": "A simple question to check understanding",
+      "explanation": "your explanation or friendly greeting here",
+      "example": "an example demonstrating the concept (or null for greetings)",
+      "imageKeyword": "a 1-2 word specific keyword to search for an educational illustration (or null)",
+      "videoKeyword": "a short keyword phrase to search for an educational video on youtube (or null)",
+      "quiz": "A simple question to check understanding (or null)",
       "options": ["A", "B", "C", "D"],
       "correctAnswer": "A"
     }
     `;
 
-    let aiData;
+    let aiData = null;
+    let fallbackToGemini = false;
     
-    if (process.env.GEMINI_API_KEY) {
-      console.log(`[AI] Calling Gemini API...`);
-      // Use real Gemini API
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-      console.log(`[AI] Raw Response:`, responseText);
-      const cleanJsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      
+    if (process.env.OPENAI_API_KEY) {
+      console.log(`[AI] Calling OpenAI API...`);
       try {
-        aiData = JSON.parse(cleanJsonString);
-        console.log(`[AI] Successfully parsed JSON.`);
-      } catch (parseError) {
-        console.error(`[AI Error] JSON Parse Failed. Using static fallback.`);
-        aiData = {
-          explanation: responseText, // Use raw text as fallback explanation
-          example: "Please refer to the explanation.",
-          imageKeyword: "learning",
-          videoKeyword: "education",
-          quiz: "Did you understand the concept?",
-          options: ["Yes", "No", "Maybe", "Not sure"],
-          correctAnswer: "Yes"
-        };
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const completion = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "system", content: prompt }],
+        });
+        const responseText = completion.choices[0].message.content;
+        console.log(`[AI] Raw Response:`, responseText);
+        const cleanJsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        try {
+          aiData = JSON.parse(cleanJsonString);
+          console.log(`[AI] Successfully parsed JSON.`);
+        } catch (parseError) {
+          console.error(`[AI Error] JSON Parse Failed. Using static fallback.`);
+          aiData = {
+            explanation: responseText, // Use raw text as fallback explanation
+            example: "Please refer to the explanation.",
+            imageKeyword: "learning",
+            videoKeyword: "education",
+            quiz: "Did you understand the concept?",
+            options: ["Yes", "No", "Maybe", "Not sure"],
+            correctAnswer: "Yes"
+          };
+        }
+      } catch (apiError) {
+        console.error(`[AI API Error]: OpenAI failed (${apiError.message}). Attempting fallback to Gemini...`);
+        fallbackToGemini = true;
       }
     } else {
+      fallbackToGemini = true;
+    }
+
+    if (fallbackToGemini && process.env.GEMINI_API_KEY) {
+      console.log(`[AI] Calling Gemini API...`);
+      try {
+        // Use real Gemini API
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        console.log(`[AI] Raw Response:`, responseText);
+        const cleanJsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        try {
+          aiData = JSON.parse(cleanJsonString);
+          console.log(`[AI] Successfully parsed JSON.`);
+        } catch (parseError) {
+          console.error(`[AI Error] JSON Parse Failed. Using static fallback.`);
+          aiData = {
+            explanation: responseText,
+            example: "Please refer to the explanation.",
+            imageKeyword: "learning",
+            videoKeyword: "education",
+            quiz: "Did you understand the concept?",
+            options: ["Yes", "No", "Maybe", "Not sure"],
+            correctAnswer: "Yes"
+          };
+        }
+      } catch (apiError) {
+        console.error(`[AI API Error]: Gemini failed (${apiError.message}).`);
+        aiData = {
+          explanation: `(API Overloaded) Both OpenAI and Gemini services are currently out of tokens or rate-limited. Please try again later.`,
+          example: `Example related to ${question}`,
+          imageKeyword: null,
+          videoKeyword: null,
+          quiz: `Mock quiz about ${question}?`,
+          options: ["A", "B", "C", "D"],
+          correctAnswer: "A"
+        };
+      }
+    } else if (!aiData) {
       console.log(`[AI] Using Mock Data (No API Key)`);
       // Fallback to mock data if no API key is provided yet
       aiData = {
-        explanation: `(Mock Data - Please add GEMINI_API_KEY to .env) ${promptInstructions} for: ${question}`,
+        explanation: `(Mock Data - Please add OPENAI_API_KEY or GEMINI_API_KEY to .env) ${promptInstructions} for: ${question}`,
         example: `Example related to ${question}`,
         imageKeyword: "education",
         videoKeyword: "learning",

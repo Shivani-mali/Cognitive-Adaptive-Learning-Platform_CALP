@@ -6,6 +6,7 @@ const Learning = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confusedCount, setConfusedCount] = useState(0);
   const messagesEndRef = useRef(null);
   
   const mode = localStorage.getItem('learning_preference') || 'Step-by-Step Mode';
@@ -23,9 +24,19 @@ const Learning = () => {
     
     const userText = inputValue;
     const userMsg = { role: 'user', content: userText };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => {
+      if (prev.length === 0) {
+        const savedChats = JSON.parse(localStorage.getItem('calp_recent_chats') || '[]');
+        // Create new chat and put it at the top
+        const newChat = { id: Date.now().toString(), title: userText, isPinned: false };
+        localStorage.setItem('calp_recent_chats', JSON.stringify([newChat, ...savedChats]));
+        window.dispatchEvent(new Event('chatsUpdated'));
+      }
+      return [...prev, userMsg];
+    });
     setInputValue('');
     setLoading(true);
+    setConfusedCount(0);
 
     try {
       const res = await askAi(userText, 'Student is exploring concepts.', mode);
@@ -44,13 +55,54 @@ const Learning = () => {
     setLoading(false);
   };
 
+  const handleFeedback = async (feedback) => {
+    let feedbackPrompt = "";
+    if (feedback === 'Confused') {
+      setConfusedCount(prev => prev + 1);
+      feedbackPrompt = "I'm still a bit confused by that explanation. Can you explain it again in simpler terms or provide a different example?";
+    } else if (feedback === 'Got it!') {
+      feedbackPrompt = "Got it! I understand now. Can you give me a quick quiz to test my understanding?";
+    } else if (feedback === 'Clear') {
+      feedbackPrompt = "That's crystal clear! Please tell me I'm making great progress, and then let me know what we should learn next on this topic.";
+    }
+    
+    // Build context from recent messages so the AI remembers the topic
+    const recentMessages = messages.slice(-2);
+    let contextStr = "Previous context to remember what we are talking about:\n";
+    recentMessages.forEach(m => {
+        if (m.role === 'user') {
+            contextStr += `User: ${m.content}\n`;
+        } else if (m.role === 'ai' && m.content.explanation) {
+            contextStr += `AI: ${m.content.explanation}\n`;
+        }
+    });
+    
+    const userMsg = { role: 'user', content: `[Feedback: ${feedback}] ${feedbackPrompt}` };
+    setMessages(prev => [...prev, userMsg]);
+    setLoading(true);
+
+    try {
+      const res = await askAi(feedbackPrompt, contextStr, mode);
+      if (res && res.data) {
+        const aiMsg = { role: 'ai', content: res.data };
+        setMessages(prev => [...prev, aiMsg]);
+      }
+    } catch (e) {
+      console.error(e);
+      setMessages(prev => [...prev, { 
+        role: 'ai', 
+        content: { explanation: "I'm sorry, I couldn't process that right now.", quiz: "Try again?" } 
+      }]);
+    }
+    setLoading(false);
+  };
+
   return (
     <DashboardLayout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100%', backgroundColor: '#FFFFFF' }}>
+      <div className="learning-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', backgroundColor: '#FFFFFF' }}>
         
         {/* Top Header - Mode Indicator */}
-        <div style={{ 
-          padding: '1rem 2rem', 
+        <div className="learning-header" style={{ 
           borderBottom: '1px solid var(--border-color)', 
           display: 'flex', 
           justifyContent: 'center',
@@ -75,8 +127,8 @@ const Learning = () => {
         </div>
 
         {/* Chat Area */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '750px', display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
+        <div className="chat-area" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '750px', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '2rem' }}>
             
             {messages.length === 0 ? (
               <div style={{ textAlign: 'center', color: 'var(--text-color)', marginTop: '10vh', animation: 'slideUpFade 0.5s ease-out' }}>
@@ -94,16 +146,12 @@ const Learning = () => {
                   alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start',
                   animation: 'slideUpFade 0.3s ease-out'
                 }}>
-                  <div style={{
+                  <div className="message-bubble" style={{
                     backgroundColor: msg.role === 'user' ? 'var(--action-color)' : '#F8FAFC',
                     color: msg.role === 'user' ? '#FFFFFF' : 'var(--text-color)',
-                    padding: '1.2rem 1.5rem',
-                    borderRadius: '16px',
                     borderBottomRightRadius: msg.role === 'user' ? '4px' : '16px',
                     borderBottomLeftRadius: msg.role === 'ai' ? '4px' : '16px',
-                    maxWidth: '85%',
                     border: msg.role === 'ai' ? '1px solid var(--border-color)' : 'none',
-                    fontSize: '1.05rem',
                     lineHeight: '1.6'
                   }}>
                     {msg.role === 'user' ? (
@@ -146,29 +194,33 @@ const Learning = () => {
                           </div>
                         )}
                         
-                        {/* Feedback Buttons */}
-                        <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                          {['Clear', 'Okay', 'Confused'].map(fb => (
-                            <button key={fb} style={{ 
-                              padding: '0.5rem 1rem', 
-                              fontSize: '0.9rem', 
-                              backgroundColor: '#FFFFFF',
-                              border: '1px solid var(--border-color)',
-                              color: 'var(--text-light)',
-                              boxShadow: 'none',
-                              borderRadius: '50px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '5px',
-                              fontWeight: '500'
-                            }}
-                            onMouseEnter={e => { e.target.style.borderColor = 'var(--action-color)'; e.target.style.color = 'var(--action-color)'; }}
-                            onMouseLeave={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.color = 'var(--text-light)'; }}
-                            >
-                              {fb}
-                            </button>
-                          ))}
-                        </div>
+                        {/* Feedback Buttons only show if it's an educational response */}
+                        {msg.content.quiz && (
+                          <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                            {['Clear', 'Got it!', 'Confused'].filter(fb => fb !== 'Confused' || confusedCount < 2).map(fb => (
+                              <button key={fb} 
+                              onClick={() => handleFeedback(fb)}
+                              style={{ 
+                                padding: '0.5rem 1rem', 
+                                fontSize: '0.9rem', 
+                                backgroundColor: '#FFFFFF',
+                                border: '1px solid var(--border-color)',
+                                color: 'var(--text-light)',
+                                boxShadow: 'none',
+                                borderRadius: '50px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                fontWeight: '500'
+                              }}
+                              onMouseEnter={e => { e.target.style.borderColor = 'var(--action-color)'; e.target.style.color = 'var(--action-color)'; }}
+                              onMouseLeave={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.color = 'var(--text-light)'; }}
+                              >
+                                {fb}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -187,7 +239,7 @@ const Learning = () => {
         </div>
 
         {/* Bottom Input Area */}
-        <div style={{ padding: '1.5rem 2rem 2.5rem', display: 'flex', justifyContent: 'center', backgroundColor: '#FFFFFF' }}>
+        <div className="input-area-container" style={{ display: 'flex', justifyContent: 'center', backgroundColor: '#FFFFFF' }}>
           <div style={{ 
             width: '100%', 
             maxWidth: '750px', 
@@ -241,6 +293,22 @@ const Learning = () => {
         </div>
         
         <style>{`
+          .learning-header { padding: 1rem 2rem; }
+          .chat-area { padding: 2rem; }
+          .message-bubble { padding: 1.2rem 1.5rem; border-radius: 16px; max-width: 85%; font-size: 1.05rem; }
+          .input-area-container { padding: 1.5rem 2rem 2.5rem; }
+          
+          @media (max-width: 768px) {
+            .learning-header { padding: 1rem; }
+            .chat-area { padding: 1rem; }
+            .message-bubble { max-width: 95%; padding: 1rem; font-size: 1rem; }
+            .input-area-container { 
+              padding: 1rem; 
+              background-color: #FFFFFF; 
+              border-top: 1px solid var(--border-color); 
+            }
+          }
+
           .loader-dots span {
             display: inline-block;
             width: 8px;
