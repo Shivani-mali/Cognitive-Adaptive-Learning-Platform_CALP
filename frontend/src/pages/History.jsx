@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 
 const History = () => {
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    import('../services/progressService').then(({ getChatHistory }) => {
+      getChatHistory().then(data => setHistory(data || []));
+    });
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="history-wrapper">
@@ -12,19 +20,41 @@ const History = () => {
             <p className="page-subtitle">Review your past learning sessions and topics.</p>
           </div>
 
-          <div className="empty-state-card">
-            <div className="icon-wrapper bg-indigo-light">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
+          {history.length === 0 ? (
+            <div className="empty-state-card">
+              <div className="icon-wrapper bg-indigo-light">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <h2>No History Yet</h2>
+              <p>Your recent learning sessions will appear here once you start exploring topics.</p>
+              <button className="start-btn" onClick={() => window.location.href='/learning'}>
+                Start Learning
+              </button>
             </div>
-            <h2>No History Yet</h2>
-            <p>Your recent learning sessions will appear here once you start exploring topics.</p>
-            <button className="start-btn" onClick={() => window.location.href='/learning'}>
-              Start Learning
-            </button>
-          </div>
+          ) : (
+            <div className="history-list">
+              {history.map((item, idx) => (
+                <div key={idx} className="history-card">
+                  <div className="history-icon bg-indigo-light">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </div>
+                  <div className="history-content">
+                    <h3>{item.title}</h3>
+                    <p>{new Date(item.timestamp).toLocaleString()}</p>
+                  </div>
+                  <button className="resume-btn" onClick={() => window.location.href='/learning'}>
+                    Review
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -140,9 +170,84 @@ const History = () => {
           box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
         }
 
+        /* History List Styles */
+        .history-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .history-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+          transition: all 0.2s ease;
+        }
+
+        .history-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+          border-color: #a78bfa;
+        }
+
+        .history-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .history-content {
+          flex: 1;
+        }
+
+        .history-content h3 {
+          margin: 0 0 0.25rem 0;
+          font-size: 1.1rem;
+          color: #0f172a;
+          font-weight: 600;
+        }
+
+        .history-content p {
+          margin: 0;
+          font-size: 0.9rem;
+          color: #64748b;
+        }
+
+        .resume-btn {
+          padding: 0.6rem 1.2rem;
+          background: #f1f5f9;
+          color: #4F46E5;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .resume-btn:hover {
+          background: #e0e7ff;
+        }
+
         @media (max-width: 600px) {
           .history-container { padding: 2rem 1.5rem; }
           .page-title { font-size: 2rem; }
+          .history-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+          .resume-btn {
+            width: 100%;
+          }
         }
       `}</style>
     </DashboardLayout>

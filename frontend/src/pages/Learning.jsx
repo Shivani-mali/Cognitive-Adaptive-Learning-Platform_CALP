@@ -26,11 +26,11 @@ const Learning = () => {
     const userMsg = { role: 'user', content: userText };
     setMessages(prev => {
       if (prev.length === 0) {
-        const savedChats = JSON.parse(localStorage.getItem('calp_recent_chats') || '[]');
-        // Create new chat and put it at the top
-        const newChat = { id: Date.now().toString(), title: userText, isPinned: false };
-        localStorage.setItem('calp_recent_chats', JSON.stringify([newChat, ...savedChats]));
-        window.dispatchEvent(new Event('chatsUpdated'));
+        import('../services/progressService').then(({ saveChatHistory, incrementTopics }) => {
+          saveChatHistory(userText);
+          incrementTopics();
+          window.dispatchEvent(new Event('chatsUpdated'));
+        });
       }
       return [...prev, userMsg];
     });

@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 
 const StudentHome = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({ topicsCompleted: 0, streakDays: 0, progressPercent: 0 });
+
+  useEffect(() => {
+    import('../services/progressService').then(({ getUserStats }) => {
+      getUserStats().then(data => {
+        if (data) {
+          setStats(data);
+        }
+      });
+    });
+  }, []);
 
   return (
     <DashboardLayout>
@@ -29,9 +40,9 @@ const StudentHome = () => {
               
               <div className="hero-progress-section">
                 <div className="hero-progress-track">
-                  <div className="hero-progress-fill" style={{ width: '65%' }}></div>
+                  <div className="hero-progress-fill" style={{ width: `${stats.progressPercent}%` }}></div>
                 </div>
-                <span className="hero-progress-text">65% Complete</span>
+                <span className="hero-progress-text">{stats.progressPercent}% Complete</span>
               </div>
             </div>
             
@@ -74,7 +85,7 @@ const StudentHome = () => {
                      </svg>
                    </div>
                    <div className="stat-info">
-                     <div className="stat-value">12</div>
+                     <div className="stat-value">{stats.topicsCompleted}</div>
                      <div className="stat-label">Topics Completed</div>
                    </div>
                  </div>
@@ -86,7 +97,7 @@ const StudentHome = () => {
                      </svg>
                    </div>
                    <div className="stat-info">
-                     <div className="stat-value">5 Days</div>
+                     <div className="stat-value">{stats.streakDays} Days</div>
                      <div className="stat-label">Learning Streak</div>
                    </div>
                  </div>
