@@ -90,7 +90,7 @@ const getAiResponse = async (question, context, mode) => {
 
   // 1. Try Gemini API with multi-model fallback
   if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'dummy_key') {
-    const geminiModels = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-pro"];
+    const geminiModels = ["gemini-flash-latest", "gemini-1.5-flash", "gemini-2.0-flash", "gemini-pro"];
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
     for (const modelName of geminiModels) {
