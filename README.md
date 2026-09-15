@@ -39,15 +39,22 @@ cd Cognitive-Adaptive-Learning-Platform_CALP
 ```
 
 ### 2. Backend Setup
-Navigate to the backend directory, install dependencies, and set up your environment variables.
+Navigate to the backend directory, install dependencies, and set up your environment variables using `.env.example`.
 ```bash
 cd backend
 npm install
 ```
-Create a `.env` file in the `backend` folder and add your Gemini API Key:
+Copy `.env.example` to `.env` in the `backend` folder and add your secret API keys:
+```bash
+cp .env.example .env
+```
+In your local `.env` file (which is git-ignored):
 ```env
 PORT=5000
 GEMINI_API_KEY=your_gemini_api_key_here
+UNSPLASH_ACCESS_KEY=your_unsplash_access_key_here
+YOUTUBE_API_KEY=your_youtube_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 Run the backend server:
 ```bash
@@ -78,14 +85,20 @@ This project is configured to be easily deployed on Vercel.
 1. Create a new project on [Vercel](https://vercel.com).
 2. Import this repository.
 3. Vercel will automatically detect the settings. Ensure the **Root Directory** is configured properly if deploying parts separately, OR use the provided `vercel.json` for a unified deployment.
-4. Add your `GEMINI_API_KEY` to the Environment Variables in your Vercel project settings.
+4. Add your environment variables (`GEMINI_API_KEY`, etc.) in your Vercel project settings under **Settings > Environment Variables**.
 5. Click **Deploy**.
 
 ---
 
-## 🔒 Security Note
-**Do not commit `.env` files to GitHub.** 
-This repository is configured to ignore `.env` files automatically to protect your API keys and sensitive information.
+## 🔒 Why `.env` Files Are NEVER Shared or Committed
+
+**Critical Security Policy:** `.env` files contain private, secret API keys (e.g. Gemini, OpenAI, Google Cloud, Unsplash) and database credentials. 
+
+### Why `.env` files must remain strictly private:
+1. **Prevent Key Theft & Exploitation**: Publicly committing secret keys allows unauthorized third parties to steal your API credentials, leading to API quota exhaustion, unexpected billing charges, or service suspension.
+2. **Repository Protection**: `.gitignore` is configured at both root and backend levels to automatically exclude `.env` files from Git commits.
+3. **Template Usage**: Always share `.env.example` templates with empty placeholder values instead of actual live API keys.
+4. **Production Configuration**: In production hostings like Vercel or Netlify, environment variables are safely configured via the hosting provider's Dashboard settings instead of code files.
 
 ---
 

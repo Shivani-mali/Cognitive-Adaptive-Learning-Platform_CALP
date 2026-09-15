@@ -21,17 +21,18 @@ const LandingPage = () => {
       minHeight: '100vh',
       backgroundColor: '#000000',
       overflowX: 'hidden',
-      overflowY: 'auto',
       fontFamily: "'Inter', sans-serif",
       color: '#ffffff'
     }}>
       {/* Fixed Background Video */}
       <div style={{
-        position: 'absolute',
+        position: 'fixed',
         top: 0,
         left: 0,
-        width: '100vw',
-        height: '100vh',
+        right: 0,
+        bottom: 0,
+        width: '100%',
+        height: '100%',
         zIndex: 0,
         overflow: 'hidden'
       }}>
@@ -79,7 +80,7 @@ const LandingPage = () => {
       </div>
 
       {/* Cinematic Floating Light Particles */}
-      <div className="particles-container" style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', overflow: 'hidden' }}>
+      <div className="particles-container" style={{ position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', overflow: 'hidden' }}>
          <div className="light-particle lp1"></div>
          <div className="light-particle lp2"></div>
          <div className="light-particle lp3"></div>
@@ -161,11 +162,11 @@ const LandingPage = () => {
         /* Animations & Layout */
         .hero-section {
           min-height: 100vh;
-          width: 100vw;
+          width: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 2rem;
+          padding: 2.5rem 1.5rem;
           box-sizing: border-box;
           animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -177,25 +178,26 @@ const LandingPage = () => {
 
         /* Premium Glass Panel */
         .glass-panel {
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(0, 0, 0, 0.35);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 32px;
-          padding: 4rem 3rem;
-          max-width: 800px;
+          padding: 3rem 2.5rem;
+          max-width: 780px;
           width: 100%;
           text-align: center;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
           display: flex;
           flex-direction: column;
           align-items: center;
+          box-sizing: border-box;
         }
 
         /* Hero Typography */
         .hero-title {
-          margin: 0 0 0.5rem 0;
-          font-size: 4.5rem;
+          margin: 0 0 0.25rem 0;
+          font-size: 4rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: 0.05em;
@@ -203,8 +205,8 @@ const LandingPage = () => {
         }
         
         .hero-subtitle {
-          margin: 0 0 1.5rem 0;
-          font-size: 1.4rem;
+          margin: 0 0 1.2rem 0;
+          font-size: 1.25rem;
           font-weight: 400;
           color: rgba(255,255,255,0.9);
           letter-spacing: 0.05em;
@@ -216,12 +218,12 @@ const LandingPage = () => {
           height: 3px;
           background: linear-gradient(90deg, #4F46E5, #8B5CF6);
           border-radius: 10px;
-          margin: 0 auto 2rem;
+          margin: 0 auto 1.5rem;
         }
 
         .hero-tagline {
-          margin: 0 0 1rem 0;
-          font-size: 1.3rem;
+          margin: 0 0 0.8rem 0;
+          font-size: 1.2rem;
           font-weight: 500;
           color: #ffffff;
           letter-spacing: 0.02em;
@@ -229,11 +231,11 @@ const LandingPage = () => {
         }
 
         .hero-desc {
-          margin: 0 0 2.5rem 0;
-          font-size: 1.1rem;
+          margin: 0 0 2rem 0;
+          font-size: 1.05rem;
           font-weight: 300;
           color: rgba(255, 255, 255, 0.75);
-          max-width: 600px;
+          max-width: 580px;
           line-height: 1.6;
         }
 
@@ -241,10 +243,10 @@ const LandingPage = () => {
         .features-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 1.2rem;
-          margin-bottom: 3rem;
+          gap: 1rem;
+          margin-bottom: 2.2rem;
           width: 100%;
-          max-width: 650px;
+          max-width: 620px;
         }
 
         .feature-item {
@@ -252,11 +254,11 @@ const LandingPage = () => {
           align-items: center;
           justify-content: flex-start;
           gap: 12px;
-          font-size: 1rem;
+          font-size: 0.95rem;
           color: #ffffff;
           font-weight: 500;
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1rem 1.2rem;
+          background: rgba(255, 255, 255, 0.06);
+          padding: 0.85rem 1.1rem;
           border-radius: 16px;
           border: 1px solid rgba(255, 255, 255, 0.08);
           transition: all 0.3s ease;
@@ -278,8 +280,8 @@ const LandingPage = () => {
 
         /* Buttons */
         .start-btn {
-          padding: 1.2rem 3.5rem;
-          font-size: 1.15rem;
+          padding: 1.1rem 3.2rem;
+          font-size: 1.1rem;
           font-weight: 600;
           color: #ffffff;
           border: none;
@@ -330,10 +332,8 @@ const LandingPage = () => {
         /* Mobile Adjustments */
         @media (max-width: 768px) {
           .hero-section {
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             min-height: 100vh;
-            padding-top: 2rem;
-            padding-bottom: 2rem;
           }
           .glass-panel {
             padding: 2rem 1.2rem;
@@ -358,7 +358,7 @@ const LandingPage = () => {
             line-height: 1.5;
           }
           .features-grid {
-            grid-template-columns: 1fr; /* Stack vertically on mobile */
+            grid-template-columns: 1fr;
             gap: 0.6rem;
             margin-bottom: 2rem;
           }

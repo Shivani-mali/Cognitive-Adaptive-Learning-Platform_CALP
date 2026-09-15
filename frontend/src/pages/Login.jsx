@@ -11,6 +11,41 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const getFriendlyErrorMessage = (err) => {
+    if (!err) return 'An error occurred during authentication.';
+    const message = typeof err === 'string' ? err : (err.message || err.toString());
+    const code = err.code || '';
+
+    if (code === 'auth/invalid-credential' || message.includes('auth/invalid-credential')) {
+      return 'Invalid email or password. Please check your credentials and try again.';
+    }
+    if (code === 'auth/user-not-found' || message.includes('auth/user-not-found')) {
+      return 'No account found with this email. Please check your email or Sign Up.';
+    }
+    if (code === 'auth/wrong-password' || message.includes('auth/wrong-password')) {
+      return 'Incorrect password. Please try again.';
+    }
+    if (code === 'auth/email-already-in-use' || message.includes('auth/email-already-in-use')) {
+      return 'An account already exists with this email. Please Login instead.';
+    }
+    if (code === 'auth/weak-password' || message.includes('auth/weak-password')) {
+      return 'Password should be at least 6 characters.';
+    }
+    if (code === 'auth/invalid-email' || message.includes('auth/invalid-email')) {
+      return 'Please enter a valid email address.';
+    }
+    if (code === 'auth/popup-closed-by-user' || message.includes('auth/popup-closed-by-user')) {
+      return 'Sign-in popup was closed before completing.';
+    }
+    if (code === 'auth/unauthorized-domain' || message.includes('auth/unauthorized-domain')) {
+      return 'This domain is not authorized in Firebase Console (Authentication > Settings > Authorized Domains).';
+    }
+    if (code === 'auth/network-request-failed' || message.includes('network-request-failed')) {
+      return 'Network connection issue. Please check your internet connection.';
+    }
+    return message.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.?$/, '');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -23,18 +58,21 @@ const Login = () => {
       }
       navigate(role === 'student' ? '/loader' : '/parent-dashboard');
     } catch (err) {
-      setError(err.message);
+      console.error("Auth error:", err);
+      setError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
+    setError(null);
     try {
       await loginWithGoogle(role);
       navigate(role === 'student' ? '/loader' : '/parent-dashboard');
     } catch (err) {
-      setError(err.message);
+      console.error("Google Auth error:", err);
+      setError(getFriendlyErrorMessage(err));
     }
   };
 

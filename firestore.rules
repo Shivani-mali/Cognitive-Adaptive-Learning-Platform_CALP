@@ -16,12 +16,20 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
+
+    match /users/{userId}/{document=**} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
     
     match /progress/{userId}/topics/{topicId} {
       // User can read/write their own progress
       // Parent can read their child's progress
       allow read: if isAuthenticated() && (request.auth.uid == userId || isParentOf(userId));
       allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /progress/{userId}/{document=**} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
     
     match /sessions/{sessionId} {

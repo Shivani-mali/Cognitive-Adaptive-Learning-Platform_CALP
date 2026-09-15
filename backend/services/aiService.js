@@ -7,7 +7,7 @@ const getAiResponse = async (question, context, mode) => {
   try {
     // 1. Initialize Gemini (requires GEMINI_API_KEY in .env)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy_key');
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // 2. Learning Mode Controls AI (The Prompt Engine)
     let promptInstructions = "";
