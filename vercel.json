@@ -1,16 +1,14 @@
 {
   "services": {
     "frontend": {
-      "root": "frontend",
-      "routePrefix": "/"
+      "root": "frontend"
     },
     "backend": {
-      "root": "backend",
-      "routePrefix": "/api"
+      "root": "backend"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/api/(.*)", "destination": "/backend/$1" },
+    { "source": "/(.*)", "destination": "/frontend/$1" }
   ]
 }
